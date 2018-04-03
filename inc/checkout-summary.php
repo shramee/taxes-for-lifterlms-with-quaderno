@@ -47,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php
 	$taxes = Taxes_LLMS_Quaderno::get_tax();
 	if ( ! $taxes['error'] && $taxes['data']['name'] ) {
-		$price = $plan->get_price( 'sale_price', [], 'float' );
+		$price = $plan->get_price( $plan->is_on_sale() ? 'sale_price' : 'price', [], 'float' );
 		$rate  = $taxes['data']['rate'];
 		$tax = $price * $rate / ( 100 + $rate );
 		$net_price = $price - $tax;
