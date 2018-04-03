@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Taxes for LifterLMS for Quaderno
+Plugin Name: Taxes for LifterLMS with Quaderno
 Plugin URI: http://shramee.me/
 Description: Simple plugin starter for quick delivery
 Author: Shramee
@@ -9,20 +9,17 @@ Author URI: http://shramee.me/
 @developer shramee <shramee.srivastav@gmail.com>
 */
 
-/** Plugin admin class */
-require 'inc/class-admin.php';
-/** Plugin public class */
-require 'inc/class-public.php';
+include dirname( __FILE__ ) . '/inc/quaderno_base.php';
 
 /**
- * Taxes for LifterLMS for Quaderno main class
+ * Taxes for LifterLMS with Quaderno main class
  * @static string $token Plugin token
  * @static string $file Plugin __FILE__
  * @static string $url Plugin root dir url
  * @static string $path Plugin root dir path
  * @static string $version Plugin version
  */
-class Taxes_LLMS_Quaderno{
+class Taxes_LLMS_Quaderno {
 
 	/** @var Taxes_LLMS_Quaderno Instance */
 	private static $_instance = null;
@@ -41,12 +38,6 @@ class Taxes_LLMS_Quaderno{
 
 	/** @var string Plugin directory path */
 	public static $path;
-
-	/** @var Taxes_LLMS_Quaderno_Admin Instance */
-	public $admin;
-
-	/** @var Taxes_LLMS_Quaderno_Public Instance */
-	public $public;
 
 	/**
 	 * Return class instance
@@ -73,33 +64,38 @@ class Taxes_LLMS_Quaderno{
 		self::$path    = plugin_dir_path( $file );
 		self::$version = '1.0.0';
 
-		$this->_admin(); //Initiate admin
-		$this->_public(); //Initiate public
+		$this->_hooks(); //Initiate public
 
 	}
-
-	/**
-	 * Initiates admin class and adds admin hooks
-	 */
-	private function _admin() {
-		//Instantiating admin class
-		$this->admin = Taxes_LLMS_Quaderno_Admin::instance();
-
-		//Enqueue admin end JS and CSS
-		add_action( 'admin_enqueue_scripts',	array( $this->admin, 'enqueue' ) );
-
-	}
-
 	/**
 	 * Initiates public class and adds public hooks
 	 */
-	private function _public() {
-		//Instantiating public class
-		$this->public = Taxes_LLMS_Quaderno_Public::instance();
-
+	private function _hooks() {
 		//Enqueue front end JS and CSS
-		add_action( 'wp_enqueue_scripts',	array( $this->public, 'enqueue' ) );
+		add_filter( 'lifterlms_locate_template',	array( $this, 'llms_tpl' ), 11, 2 );
+	}
 
+	public function llms_tpl( $file, $tpl ) {
+		if( 'checkout/form-summary.php' === $tpl ) {
+			$file = dirname( __FILE__ ) . '/inc/checkout-summary.php';
+		} else if( 'myaccount/view-order.php' === $tpl ) {
+			$file = dirname( __FILE__ ) . '/inc/view-order.php';
+		}
+		return $file;
+	}
+
+	public static function get_tax( $country = null ) {
+		if ( ! $country ) {
+			$country = get_user_meta( get_current_user_id(), 'llms_billing_country', 1 );
+		}
+		$data = array(
+			'country' => $country,
+		);
+
+		Taxes_LLMS_Quaderno_Base::init( get_option('quaderno_private_key'), 'https://assur-8024.quadernoapp.com/api/' );
+
+		$tax = Taxes_LLMS_Quaderno_Base::calculate( $data );   // Returns a QuadernoTax
+		return $tax;
 	}
 }
 
