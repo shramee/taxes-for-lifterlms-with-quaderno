@@ -1,4 +1,4 @@
-# Taxes for LifterLMS for Quaderno
+# Taxes for LifterLMS with Quaderno
 
 A structured, object oriented foundation to help you quickly build and deliver plugins.
 
@@ -46,7 +46,7 @@ The WordPress Plugin Boilerplate is licensed under the GPL v2 or later.
 Search For | Replace With
 -----------|-------------
 Taxes_LLMS_Quaderno | My_Awesome_Plugin
-Taxes for LifterLMS for Quaderno | My Awesome Plugin
+Taxes for LifterLMS with Quaderno | My Awesome Plugin
 taxes-lifterlms-quaderno | my-awesome-plugin
 
 ##Documentation
